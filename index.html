@@ -1,0 +1,1057 @@
+﻿<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ระบบสร้างใบคิดสินค้า</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #667085;
+      --line: #d0d5dd;
+      --soft: #f5f7fa;
+      --panel: #ffffff;
+      --accent: #2563eb;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #027a48;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #eef2f6;
+      font-family: Tahoma, "Noto Sans Thai", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    .app-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: var(--panel);
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      color: #fff;
+      background: var(--accent);
+    }
+
+    button:focus,
+    textarea:focus,
+    input:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 1px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.85fr) minmax(480px, 1.15fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 520px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      color: var(--ink);
+      background: #fff;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    .validation {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .message {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      background: var(--soft);
+      font-size: 13px;
+    }
+
+    .message.error {
+      border-color: #fecdca;
+      color: var(--danger);
+      background: #fffbfa;
+    }
+
+    .message.warning {
+      border-color: #fedf89;
+      color: var(--warn);
+      background: #fffcf5;
+    }
+
+    .message.success {
+      border-color: #abefc6;
+      color: var(--ok);
+      background: #f6fef9;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .empty-state {
+      padding: 42px 16px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+      background: #fff;
+    }
+
+    .product-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 250px;
+      border: 1px solid #98a2b3;
+      border-radius: 6px;
+      padding: 10px;
+      background: #fff;
+      overflow: hidden;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .product-card.single-card .product-code,
+    .product-card.single-card .product-name {
+      text-align: center;
+    }
+
+    .product-card.single-card .single-qty {
+      align-self: center;
+    }
+
+    .product-code {
+      font-size: 15px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .product-name {
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .single-qty {
+      margin-top: 14px;
+      width: 86px;
+    }
+
+    .qty-input {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 5px 6px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      background: #fff;
+    }
+
+    .variant-list {
+      display: grid;
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .variant-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 58px;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .variant-text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card-footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px;
+      gap: 8px;
+      align-items: end;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+
+    .cost {
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .image-box {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #f8fafc;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .image-box:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 1px;
+    }
+
+    .image-box img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .image-hint {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding: 2px 3px;
+      color: #fff;
+      background: rgba(17, 24, 39, 0.65);
+      font-size: 9px;
+      line-height: 1.2;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .image-remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      min-height: 0;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 4px;
+      padding: 2px 5px;
+      color: #fff;
+      background: rgba(180, 35, 24, 0.88);
+      font-size: 10px;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .placeholder {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      color: #98a2b3;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .image-file-input {
+      display: none;
+    }
+
+    @media (max-width: 1000px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app-shell {
+        padding: 12px;
+      }
+
+      .app-header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .toolbar button {
+        flex: 1 1 auto;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 8mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .app-shell {
+        max-width: none;
+        padding: 0;
+      }
+
+      .app-header,
+      .input-panel,
+      .validation,
+      .panel-header,
+      .empty-state {
+        display: none !important;
+      }
+
+      .workspace,
+      .panel,
+      .panel-body {
+        display: block;
+        border: 0;
+        padding: 0;
+        background: #fff;
+        overflow: visible;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4mm;
+      }
+
+      .product-card {
+        min-height: 62mm;
+        border: 0.3mm solid #555;
+        border-radius: 1.5mm;
+        padding: 2.5mm;
+        color: #000;
+      }
+
+      .product-code {
+        font-size: 10pt;
+      }
+
+      .product-name {
+        font-size: 8.5pt;
+        line-height: 1.28;
+      }
+
+      .variant-row {
+        grid-template-columns: minmax(0, 1fr) 14mm;
+        gap: 1.5mm;
+        font-size: 7.6pt;
+        line-height: 1.2;
+      }
+
+      .qty-input {
+        border: 0;
+        border-bottom: 0.25mm solid #777;
+        border-radius: 0;
+        padding: 0;
+        color: #000;
+        font-size: 8.5pt;
+        background: transparent;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .single-qty {
+        width: 22mm;
+      }
+
+      .card-footer {
+        grid-template-columns: minmax(0, 1fr) 20mm;
+        gap: 2mm;
+        padding-top: 2mm;
+      }
+
+      .cost {
+        font-size: 8.5pt;
+      }
+
+      .image-box {
+        width: 20mm;
+        height: 20mm;
+        border: 0.25mm solid #bbb;
+        cursor: default;
+      }
+
+      .placeholder {
+        color: #aaa;
+        font-size: 6.5pt;
+      }
+
+      .image-hint,
+      .image-remove-btn,
+      .image-file-input {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1>ระบบสร้างใบคิดสินค้า</h1>
+        <div class="subtitle">ต้นแบบใช้งานบนเครื่อง: วางข้อมูล TSV สร้างการ์ดที่แก้จำนวนได้ แล้วพิมพ์หรือบันทึกเป็น PDF</div>
+      </div>
+      <div class="toolbar">
+        <button type="button" id="exportTemplateBtn">ส่งออกแม่แบบ TSV</button>
+        <button type="button" id="loadSampleBtn">โหลดข้อมูลตัวอย่าง</button>
+        <button type="button" class="primary" id="generateBtn">สร้าง / อัปเดตตัวอย่างก่อนพิมพ์</button>
+        <button type="button" id="clearBtn">ล้างข้อมูล</button>
+        <button type="button" id="printBtn">พิมพ์ / บันทึกเป็น PDF</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <section class="panel input-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">ข้อมูล TSV</h2>
+        </div>
+        <div class="panel-body">
+          <textarea id="tsvInput" spellcheck="false" aria-label="ช่องวางข้อมูล TSV"></textarea>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">ตัวอย่างการ์ด</h2>
+        </div>
+        <div class="panel-body">
+          <div id="validationResult" class="validation"></div>
+          <div id="cardPreview" class="card-grid">
+            <div class="empty-state">โหลดข้อมูลตัวอย่างหรือวางข้อมูล TSV แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const REQUIRED_HEADERS = [
+      "card_type",
+      "group_id",
+      "sort_order",
+      "product_code",
+      "product_name",
+      "variant_detail",
+      "qty_display",
+      "cost_price",
+      "image_url",
+      "note"
+    ];
+
+    const SIMPLE_HEADERS = [
+      "product_code",
+      "product_name",
+      "qty_display",
+      "cost_price"
+    ];
+
+    const THAI_HEADERS = [
+      "รหัสสินค้า",
+      "ชื่อสินค้า",
+      "จำนวน",
+      "ทุน",
+      "รูปภาพ"
+    ];
+
+    const OLD_THAI_HEADERS = [
+      "ประเภทการ์ด",
+      "รหัสกลุ่ม",
+      "ลำดับ",
+      "รหัสสินค้า",
+      "ชื่อสินค้า",
+      "รายละเอียดไซส์",
+      "จำนวน",
+      "ทุน",
+      "รูปภาพ",
+      "หมายเหตุ"
+    ];
+
+    const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"];
+    const SIZE_SUFFIXES = ["5XL", "4XL", "3XL", "2XL", "XL", "XS", "S", "M", "L"];
+
+    const HEADER_LABELS = {
+      card_type: "ประเภทการ์ด",
+      group_id: "รหัสกลุ่ม",
+      sort_order: "ลำดับ",
+      product_code: "รหัสสินค้า",
+      product_name: "ชื่อสินค้า",
+      variant_detail: "รายละเอียดไซส์",
+      qty_display: "จำนวน",
+      cost_price: "ทุน",
+      image_url: "รูปภาพ",
+      note: "หมายเหตุ"
+    };
+
+    const HEADER_ALIASES = {
+      "ประเภทการ์ด": "card_type",
+      "รหัสกลุ่ม": "group_id",
+      "ลำดับ": "sort_order",
+      "รหัสสินค้า": "product_code",
+      "ชื่อสินค้า": "product_name",
+      "รายละเอียดไซส์": "variant_detail",
+      "จำนวน": "qty_display",
+      "ทุน": "cost_price",
+      "รูปภาพ": "image_url",
+      "หมายเหตุ": "note"
+    };
+
+    REQUIRED_HEADERS.forEach((header) => {
+      HEADER_ALIASES[header] = header;
+    });
+
+    const TEMPLATE_TSV = THAI_HEADERS.join("\t") + "\n";
+
+    const SAMPLE_TSV = [
+      THAI_HEADERS.join("\t"),
+      ["RD788", "หมวก Nike Dri-Fit Club Unstructured Metal Swoosh Cap Original สีดำ", "+190", "280", ""].join("\t"),
+      ["RD758S", "(Size S/อก 40) เสื้อ Calvin Klein NEW YORK สีดำ", "+50", "300", ""].join("\t"),
+      ["RD758M", "(Size M/อก 42) เสื้อ Calvin Klein NEW YORK สีดำ", "50", "300", ""].join("\t"),
+      ["RD758L", "(Size L/อก 44) เสื้อ Calvin Klein NEW YORK สีดำ", "+50", "300", ""].join("\t"),
+      ["RD758XL", "(Size XL/อก 46) เสื้อ Calvin Klein NEW YORK สีดำ", "50", "300", ""].join("\t"),
+      ["RD790", "กระเป๋าผ้าแคนวาส สีธรรมชาติ", "190", "120", ""].join("\t")
+    ].join("\n");
+
+    const tsvInput = document.getElementById("tsvInput");
+    const validationResult = document.getElementById("validationResult");
+    const cardPreview = document.getElementById("cardPreview");
+
+    document.getElementById("exportTemplateBtn").addEventListener("click", () => {
+      downloadText("sample-template.tsv", TEMPLATE_TSV);
+    });
+
+    document.getElementById("loadSampleBtn").addEventListener("click", () => {
+      tsvInput.value = SAMPLE_TSV;
+      generatePreview();
+    });
+
+    document.getElementById("generateBtn").addEventListener("click", generatePreview);
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      tsvInput.value = "";
+      validationResult.innerHTML = "";
+      cardPreview.innerHTML = '<div class="empty-state">โหลดข้อมูลตัวอย่างหรือวางข้อมูล TSV แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>';
+    });
+
+    document.getElementById("printBtn").addEventListener("click", () => {
+      window.print();
+    });
+
+    function downloadText(filename, text) {
+      const blob = new Blob(["\ufeff", text], { type: "text/tab-separated-values;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function parseTsv(raw) {
+      const normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trimEnd();
+      if (!normalized.trim()) {
+        return { headers: [], rows: [], errors: ["กรุณาวางข้อมูล TSV ก่อนสร้าง / อัปเดตตัวอย่างก่อนพิมพ์"], warnings: [] };
+      }
+
+      const lines = normalized.split("\n");
+      const sourceHeaders = lines[0].split("\t").map((header) => header.trim());
+      const headers = sourceHeaders.map((header) => HEADER_ALIASES[header] || header);
+      const hasExplicitHeaders = REQUIRED_HEADERS.every((header) => headers.includes(header));
+      const hasSimpleHeaders = SIMPLE_HEADERS.every((header) => headers.includes(header));
+      const requiredForMode = hasExplicitHeaders ? REQUIRED_HEADERS : SIMPLE_HEADERS;
+      const missingHeaders = requiredForMode.filter((header) => !headers.includes(header));
+      const errors = [];
+      const warnings = [];
+
+      if (missingHeaders.length) {
+        errors.push("ขาดหัวตารางที่จำเป็น: " + missingHeaders.map(getHeaderLabel).join(", "));
+      }
+
+      const rows = lines.slice(1)
+        .filter((line) => line.trim() !== "")
+        .map((line, index) => {
+          const values = line.split("\t");
+          const row = {};
+          REQUIRED_HEADERS.forEach((header) => {
+            row[header] = "";
+          });
+          headers.forEach((header, headerIndex) => {
+            row[header] = values[headerIndex] === undefined ? "" : values[headerIndex].trim();
+          });
+          row.__line = index + 2;
+          row.__index = index;
+          return row;
+        });
+
+      normalizeRowsFromProductName(rows);
+
+      if (!hasExplicitHeaders && hasSimpleHeaders) {
+        applyAutoCardRules(rows);
+      }
+
+      rows.forEach((row) => {
+        const label = "บรรทัดที่ " + row.__line;
+        if (hasExplicitHeaders && row.card_type !== "single" && row.card_type !== "group") {
+          errors.push(label + ": ประเภทการ์ดต้องเป็น single หรือ group");
+        }
+        if (!row.product_code) {
+          errors.push(label + ": ต้องระบุรหัสสินค้า");
+        }
+        if (!row.product_name) {
+          errors.push(label + ": ต้องระบุชื่อสินค้า");
+        }
+        if (hasExplicitHeaders && row.card_type === "group" && !row.group_id) {
+          errors.push(label + ": สินค้าแบบ group ต้องมีรหัสกลุ่ม");
+        }
+        if (row.cost_price && !isNumeric(row.cost_price)) {
+          warnings.push(label + ": ทุนควรเป็นตัวเลขหรือเว้นว่าง");
+        }
+      });
+
+      return { headers, rows, errors, warnings };
+    }
+
+    function isNumeric(value) {
+      return /^-?\d+(\.\d+)?$/.test(String(value).trim());
+    }
+
+    function getHeaderLabel(header) {
+      return HEADER_LABELS[header] || header;
+    }
+
+    function normalizeRowsFromProductName(rows) {
+      rows.forEach((row) => {
+        const extracted = extractLeadingVariantDetail(row.product_name);
+        if (extracted) {
+          row.product_name = extracted.productName;
+          row.variant_detail = extracted.variantDetail;
+          return;
+        }
+
+        row.variant_detail = normalizeVariantDetail(row.variant_detail);
+      });
+    }
+
+    function extractLeadingVariantDetail(productName) {
+      const match = String(productName || "").match(/^\s*\(([^)]*)\)\s*(.+)$/);
+      if (!match) {
+        return null;
+      }
+
+      return {
+        variantDetail: normalizeVariantDetail(match[1]),
+        productName: match[2].trim()
+      };
+    }
+
+    function normalizeVariantDetail(value) {
+      const detail = String(value || "").trim().replace(/^\((.*)\)$/, "$1").trim();
+      const sizeMatch = detail.match(/^size\s+[^/]+\/\s*(.+)$/i);
+      return sizeMatch ? sizeMatch[1].trim() : detail;
+    }
+
+    function applyAutoCardRules(rows) {
+      const candidateGroups = new Map();
+
+      rows.forEach((row) => {
+        const parsedCode = parseSizeCode(row.product_code);
+        row.__baseCode = parsedCode ? parsedCode.baseCode : row.product_code;
+        row.__size = parsedCode ? parsedCode.size : "";
+        row.__autoGroupKey = parsedCode
+          ? row.__baseCode + "::" + normalizeGroupName(row.product_name)
+          : "";
+
+        if (row.__autoGroupKey) {
+          if (!candidateGroups.has(row.__autoGroupKey)) {
+            candidateGroups.set(row.__autoGroupKey, []);
+          }
+          candidateGroups.get(row.__autoGroupKey).push(row);
+        }
+      });
+
+      rows.forEach((row) => {
+        const groupRows = row.__autoGroupKey ? candidateGroups.get(row.__autoGroupKey) : null;
+        if (groupRows && groupRows.length > 1) {
+          row.card_type = "group";
+          row.group_id = "auto-" + row.__autoGroupKey;
+          row.sort_order = String(getSizeSort(row.__size, row.__index));
+        } else {
+          row.card_type = "single";
+          row.group_id = "";
+          row.sort_order = String(row.__index + 1);
+        }
+      });
+    }
+
+    function parseSizeCode(productCode) {
+      const code = String(productCode || "").trim().toUpperCase();
+      if (!code) {
+        return null;
+      }
+
+      const size = SIZE_SUFFIXES.find((suffix) => code.endsWith(suffix));
+      if (!size) {
+        return null;
+      }
+
+      const baseCode = code.slice(0, -size.length);
+      if (!baseCode) {
+        return null;
+      }
+
+      return { baseCode, size };
+    }
+
+    function normalizeGroupName(productName) {
+      return String(productName || "").normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
+    function getSizeSort(size, fallbackIndex) {
+      const sizeIndex = SIZE_ORDER.indexOf(size);
+      return sizeIndex >= 0 ? sizeIndex + 1 : fallbackIndex + 1;
+    }
+
+    function buildCards(rows) {
+      const cards = [];
+      const groupMap = new Map();
+
+      rows.forEach((row) => {
+        if (row.card_type === "single") {
+          cards.push({ type: "single", firstSort: sortValue(row), row });
+          return;
+        }
+
+        if (!groupMap.has(row.group_id)) {
+          const groupCard = {
+            type: "group",
+            firstSort: sortValue(row),
+            groupId: row.group_id,
+            main: row,
+            variants: []
+          };
+          groupMap.set(row.group_id, groupCard);
+          cards.push(groupCard);
+        }
+
+        groupMap.get(row.group_id).variants.push(row);
+      });
+
+      cards.forEach((card) => {
+        if (card.type === "group") {
+          card.variants.sort((a, b) => sortValue(a) - sortValue(b) || a.__index - b.__index);
+        }
+      });
+
+      return cards.sort((a, b) => a.firstSort - b.firstSort);
+    }
+
+    function sortValue(row) {
+      const value = Number(row.sort_order);
+      return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+    }
+
+    function generatePreview() {
+      const parsed = parseTsv(tsvInput.value);
+      renderValidation(parsed);
+
+      if (parsed.errors.length) {
+        cardPreview.innerHTML = '<div class="empty-state">แก้ข้อผิดพลาดจากการตรวจข้อมูลก่อนสร้างตัวอย่าง</div>';
+        return;
+      }
+
+      const cards = buildCards(parsed.rows);
+      if (!cards.length) {
+        cardPreview.innerHTML = '<div class="empty-state">ไม่พบข้อมูลสินค้าใน TSV.</div>';
+        return;
+      }
+
+      cardPreview.innerHTML = "";
+      cards.forEach((card, cardIndex) => {
+        cardPreview.appendChild(card.type === "single"
+          ? renderSingleCard(card.row, cardIndex)
+          : renderGroupCard(card, cardIndex)
+        );
+      });
+    }
+
+    function renderValidation(parsed) {
+      const messages = [];
+      if (!parsed.errors.length && parsed.rows.length) {
+        messages.push({ type: "success", text: "อัปเดตตัวอย่างแล้วจาก " + parsed.rows.length + " แถว" });
+      }
+      parsed.errors.forEach((text) => messages.push({ type: "error", text }));
+      parsed.warnings.forEach((text) => messages.push({ type: "warning", text }));
+
+      validationResult.innerHTML = "";
+      messages.forEach((message) => {
+        const el = document.createElement("div");
+        el.className = "message " + message.type;
+        el.textContent = message.text;
+        validationResult.appendChild(el);
+      });
+    }
+
+    function renderSingleCard(row, cardIndex) {
+      const card = createCard("single-card");
+      card.appendChild(textBlock("product-code", row.product_code));
+      card.appendChild(textBlock("product-name", row.product_name));
+
+      const qty = document.createElement("input");
+      qty.className = "qty-input single-qty";
+      qty.value = row.qty_display || "";
+      qty.setAttribute("aria-label", "จำนวนที่แสดงผล " + row.product_code);
+      card.appendChild(qty);
+
+      card.appendChild(renderFooter(row, cardIndex));
+      return card;
+    }
+
+    function renderGroupCard(cardData, cardIndex) {
+      const card = createCard();
+      card.appendChild(textBlock("product-name", cardData.main.product_name));
+
+      const list = document.createElement("div");
+      list.className = "variant-list";
+      cardData.variants.forEach((row) => {
+        const variantRow = document.createElement("div");
+        variantRow.className = "variant-row";
+
+        const variantText = document.createElement("div");
+        variantText.className = "variant-text";
+        variantText.textContent = row.product_code + (row.variant_detail ? " (" + row.variant_detail + ")" : "");
+
+        const qty = document.createElement("input");
+        qty.className = "qty-input";
+        qty.value = row.qty_display || "";
+        qty.setAttribute("aria-label", "จำนวนที่แสดงผล " + row.product_code);
+
+        variantRow.appendChild(variantText);
+        variantRow.appendChild(qty);
+        list.appendChild(variantRow);
+      });
+      card.appendChild(list);
+      card.appendChild(renderFooter(cardData.main, cardIndex));
+      return card;
+    }
+
+    function createCard(extraClass) {
+      const card = document.createElement("article");
+      card.className = extraClass ? "product-card " + extraClass : "product-card";
+      return card;
+    }
+
+    function textBlock(className, text) {
+      const el = document.createElement("div");
+      el.className = className;
+      el.textContent = text || "";
+      return el;
+    }
+
+    function renderFooter(row, cardIndex) {
+      const footer = document.createElement("div");
+      footer.className = "card-footer";
+
+      const cost = document.createElement("div");
+      cost.className = "cost";
+      cost.textContent = row.cost_price ? "ทุน " + row.cost_price + ".-" : "ทุน";
+
+      footer.appendChild(cost);
+      footer.appendChild(renderImage(row.image_url, cardIndex));
+      return footer;
+    }
+
+    function renderImage(url, cardIndex) {
+      const box = document.createElement("div");
+      box.className = "image-box";
+      box.setAttribute("role", "button");
+      box.setAttribute("tabindex", "0");
+      box.setAttribute("aria-label", "กดเพื่อเพิ่มหรือเปลี่ยนรูปสินค้า " + (cardIndex + 1));
+
+      const fileInput = document.createElement("input");
+      fileInput.className = "image-file-input";
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.setAttribute("aria-label", "เลือกรูปสินค้าจากเครื่อง");
+
+      const openPicker = () => fileInput.click();
+      box.addEventListener("click", openPicker);
+      box.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openPicker();
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          setImage(box, String(reader.result || ""), cardIndex);
+          box.appendChild(fileInput);
+        });
+        reader.readAsDataURL(file);
+      });
+
+      if (!url) {
+        showImagePlaceholder(box);
+        box.appendChild(fileInput);
+        return box;
+      }
+
+      setImage(box, url, cardIndex);
+      box.appendChild(fileInput);
+      return box;
+    }
+
+    function showImagePlaceholder(box) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "placeholder";
+      placeholder.textContent = "กดเพื่อเพิ่มรูป";
+      box.appendChild(placeholder);
+    }
+
+    function setImage(box, url, cardIndex) {
+      const fileInput = box.querySelector(".image-file-input");
+      box.innerHTML = "";
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "รูปสินค้า " + (cardIndex + 1);
+      img.loading = "lazy";
+      img.onerror = () => {
+        const currentInput = box.querySelector(".image-file-input");
+        box.innerHTML = '<div class="placeholder">โหลดรูปไม่ได้<br>กดเพื่อเปลี่ยนรูป</div>';
+        if (currentInput) {
+          box.appendChild(currentInput);
+        }
+      };
+
+      const hint = document.createElement("div");
+      hint.className = "image-hint";
+      hint.textContent = "กดเพื่อเปลี่ยนรูป";
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "image-remove-btn";
+      removeButton.textContent = "ลบรูป";
+      removeButton.setAttribute("aria-label", "ลบรูปของการ์ดนี้");
+      removeButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const currentInput = box.querySelector(".image-file-input");
+        if (currentInput) {
+          currentInput.value = "";
+        }
+        box.innerHTML = "";
+        showImagePlaceholder(box);
+        if (currentInput) {
+          box.appendChild(currentInput);
+        }
+      });
+
+      box.appendChild(img);
+      box.appendChild(hint);
+      box.appendChild(removeButton);
+      if (fileInput) {
+        box.appendChild(fileInput);
+      }
+    }
+  </script>
+</body>
+</html>
+
