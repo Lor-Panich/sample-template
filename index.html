@@ -15,6 +15,7 @@
       --danger: #b42318;
       --warn: #b54708;
       --ok: #027a48;
+      --card-columns: 4;
     }
 
     * {
@@ -62,7 +63,8 @@
       gap: 8px;
     }
 
-    button {
+    button,
+    select {
       min-height: 38px;
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -72,6 +74,21 @@
       cursor: pointer;
       font: inherit;
       font-size: 14px;
+    }
+
+    .column-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .column-control select {
+      min-width: 76px;
+      padding-right: 8px;
+      color: var(--ink);
     }
 
     button.primary {
@@ -170,7 +187,7 @@
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--card-columns), minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -342,9 +359,7 @@
         grid-template-columns: 1fr;
       }
 
-      .card-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+
     }
 
     @media (max-width: 560px) {
@@ -357,13 +372,16 @@
         flex-direction: column;
       }
 
-      .toolbar button {
+      .toolbar button,
+      .toolbar .column-control {
         flex: 1 1 auto;
       }
 
-      .card-grid {
-        grid-template-columns: 1fr;
+      .column-control select {
+        flex: 1 1 auto;
       }
+
+
     }
 
     @page {
@@ -401,7 +419,7 @@
 
       .card-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(var(--card-columns), 1fr);
         gap: 4mm;
       }
 
@@ -487,6 +505,15 @@
         <button type="button" id="loadSampleBtn">โหลดข้อมูลตัวอย่าง</button>
         <button type="button" class="primary" id="generateBtn">สร้าง / อัปเดตตัวอย่างก่อนพิมพ์</button>
         <button type="button" id="clearBtn">ล้างข้อมูล</button>
+        <label class="column-control" for="columnSelect">
+          <span>คอลัมน์</span>
+          <select id="columnSelect" aria-label="เลือกจำนวนคอลัมน์">
+            <option value="auto" selected>อัตโนมัติ</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+          </select>
+        </label>
         <button type="button" id="printBtn">พิมพ์ / บันทึกเป็น PDF</button>
       </div>
     </header>
@@ -605,6 +632,8 @@
     const tsvInput = document.getElementById("tsvInput");
     const validationResult = document.getElementById("validationResult");
     const cardPreview = document.getElementById("cardPreview");
+    const columnSelect = document.getElementById("columnSelect");
+    let lastBuiltCards = [];
 
     document.getElementById("exportTemplateBtn").addEventListener("click", () => {
       downloadText("sample-template.tsv", TEMPLATE_TSV);
@@ -617,6 +646,11 @@
 
     document.getElementById("generateBtn").addEventListener("click", generatePreview);
 
+    columnSelect.addEventListener("change", () => {
+      applyColumnSelection(lastBuiltCards);
+    });
+    setCardColumns("4");
+
     document.getElementById("clearBtn").addEventListener("click", () => {
       tsvInput.value = "";
       validationResult.innerHTML = "";
@@ -626,6 +660,47 @@
     document.getElementById("printBtn").addEventListener("click", () => {
       window.print();
     });
+
+    function setCardColumns(value) {
+      const columns = ["2", "3", "4"].includes(String(value)) ? String(value) : "4";
+      document.documentElement.style.setProperty("--card-columns", columns);
+      return columns;
+    }
+
+    function applyColumnSelection(cards) {
+      if (columnSelect.value === "auto") {
+        const columns = chooseAutoColumns(cards);
+        setCardColumns(columns);
+        return "ระบบเลือก " + columns + " คอลัมน์อัตโนมัติ";
+      }
+
+      const columns = setCardColumns(columnSelect.value);
+      return "ใช้ " + columns + " คอลัมน์ตามที่เลือก";
+    }
+
+    function chooseAutoColumns(cards) {
+      const maxScore = cards.reduce((max, card) => Math.max(max, getCardScore(card)), 0);
+      if (maxScore <= 80) {
+        return "4";
+      }
+      if (maxScore <= 150) {
+        return "3";
+      }
+      return "2";
+    }
+
+    function getCardScore(card) {
+      if (card.type === "group") {
+        const variants = card.variants || [];
+        const variantScore = variants.reduce((sum, row) => {
+          return sum + 14 + String(row.product_code || "").length * 0.6 + String(row.variant_detail || "").length * 1.2;
+        }, 0);
+        return String(card.main.product_name || "").length * 1.2 + variantScore + variants.length * 8;
+      }
+
+      const row = card.row || {};
+      return String(row.product_code || "").length * 0.6 + String(row.product_name || "").length * 1.4 + String(row.qty_display || "").length;
+    }
 
     function downloadText(filename, text) {
       const blob = new Blob(["\ufeff", text], { type: "text/tab-separated-values;charset=utf-8" });
@@ -844,14 +919,19 @@
 
     function generatePreview() {
       const parsed = parseTsv(tsvInput.value);
-      renderValidation(parsed);
 
       if (parsed.errors.length) {
+        lastBuiltCards = [];
+        renderValidation(parsed);
         cardPreview.innerHTML = '<div class="empty-state">แก้ข้อผิดพลาดจากการตรวจข้อมูลก่อนสร้างตัวอย่าง</div>';
         return;
       }
 
       const cards = buildCards(parsed.rows);
+      lastBuiltCards = cards;
+      const columnMessage = cards.length ? applyColumnSelection(cards) : "";
+      renderValidation(parsed, columnMessage);
+
       if (!cards.length) {
         cardPreview.innerHTML = '<div class="empty-state">ไม่พบข้อมูลสินค้าใน TSV.</div>';
         return;
@@ -866,10 +946,11 @@
       });
     }
 
-    function renderValidation(parsed) {
+    function renderValidation(parsed, columnMessage) {
       const messages = [];
       if (!parsed.errors.length && parsed.rows.length) {
-        messages.push({ type: "success", text: "อัปเดตตัวอย่างแล้วจาก " + parsed.rows.length + " แถว" });
+        const suffix = columnMessage ? " — " + columnMessage : "";
+        messages.push({ type: "success", text: "อัปเดตตัวอย่างแล้วจาก " + parsed.rows.length + " แถว" + suffix });
       }
       parsed.errors.forEach((text) => messages.push({ type: "error", text }));
       parsed.warnings.forEach((text) => messages.push({ type: "warning", text }));
@@ -1054,4 +1135,7 @@
   </script>
 </body>
 </html>
+
+
+
 
