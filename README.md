@@ -41,6 +41,15 @@
 
 ถ้าชื่อสินค้าขึ้นต้นด้วยวงเล็บ ระบบจะตัดวงเล็บออกจากชื่อสินค้าและใช้เป็นรายละเอียดไซส์ เช่น `(Size M/อก 42) เสื้อ Calvin Klein NEW YORK สีดำ` จะแสดงชื่อสินค้าเป็น `เสื้อ Calvin Klein NEW YORK สีดำ` และรายละเอียดไซส์เป็น `อก 42`
 
+รองเท้าที่ใส่ไซส์ไว้ต้นชื่อ เช่น `( SIZE 37 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black` ระบบจะตัด `( SIZE 37 )` ออกจากชื่อหลัก เก็บรายละเอียดเป็น `SIZE 37` และรวมหลายไซส์เป็นการ์ดกลุ่มเดียวอัตโนมัติ ตัวอย่างเช่น:
+
+```tsv
+CA0637	( SIZE 37 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+10	500	
+CA0638	( SIZE 38 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	10	500	
+CA0639	( SIZE 39 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+8	500	
+CA0640	( SIZE 40 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	8	500	
+```
+
 ## ความหมายของ qty_display
 
 `qty_display` คือ field ภายในของคอลัมน์ `จำนวน` และหมายถึงจำนวนที่แสดงผลบนใบคิดสินค้า ไม่ใช่ราคา
@@ -80,5 +89,6 @@ CSS สำหรับการพิมพ์ตั้งไว้เป็น 
 - ยังไม่ซิงก์หรือส่งขึ้น GitHub
 - รูปจาก `image_url` ต้องเป็น URL หรือพาธไฟล์ที่เบราว์เซอร์เปิดได้
 - ไม่มีระบบบันทึกข้อมูลถาวรหลังปิดเบราว์เซอร์
+
 
 

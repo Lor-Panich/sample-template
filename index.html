@@ -813,8 +813,13 @@
 
     function normalizeVariantDetail(value) {
       const detail = String(value || "").trim().replace(/^\((.*)\)$/, "$1").trim();
-      const sizeMatch = detail.match(/^size\s+[^/]+\/\s*(.+)$/i);
-      return sizeMatch ? sizeMatch[1].trim() : detail;
+      const sizeWithMeasureMatch = detail.match(/^size\s+[^/]+\/\s*(.+)$/i);
+      if (sizeWithMeasureMatch) {
+        return sizeWithMeasureMatch[1].trim();
+      }
+
+      const shoeSizeMatch = detail.match(/^size\s+(.+)$/i);
+      return shoeSizeMatch ? "SIZE " + shoeSizeMatch[1].trim() : detail;
     }
 
     function applyAutoCardRules(rows) {
@@ -822,11 +827,18 @@
 
       rows.forEach((row) => {
         const parsedCode = parseSizeCode(row.product_code);
+        const shoeSize = parseShoeSizeDetail(row.variant_detail);
         row.__baseCode = parsedCode ? parsedCode.baseCode : row.product_code;
         row.__size = parsedCode ? parsedCode.size : "";
-        row.__autoGroupKey = parsedCode
-          ? row.__baseCode + "::" + normalizeGroupName(row.product_name)
-          : "";
+        row.__shoeSizeSort = shoeSize ? shoeSize.sortValue : null;
+
+        if (parsedCode) {
+          row.__autoGroupKey = row.__baseCode + "::" + normalizeGroupName(row.product_name);
+        } else if (shoeSize) {
+          row.__autoGroupKey = "shoe::" + normalizeGroupName(row.product_name);
+        } else {
+          row.__autoGroupKey = "";
+        }
 
         if (row.__autoGroupKey) {
           if (!candidateGroups.has(row.__autoGroupKey)) {
@@ -841,13 +853,27 @@
         if (groupRows && groupRows.length > 1) {
           row.card_type = "group";
           row.group_id = "auto-" + row.__autoGroupKey;
-          row.sort_order = String(getSizeSort(row.__size, row.__index));
+          row.sort_order = String(row.__shoeSizeSort !== null ? row.__shoeSizeSort : getSizeSort(row.__size, row.__index));
         } else {
           row.card_type = "single";
           row.group_id = "";
           row.sort_order = String(row.__index + 1);
         }
       });
+    }
+
+    function parseShoeSizeDetail(variantDetail) {
+      const match = String(variantDetail || "").trim().match(/^SIZE\s+(.+)$/i);
+      if (!match) {
+        return null;
+      }
+
+      const value = match[1].trim();
+      const numericMatch = value.match(/^\d+(\.\d+)?/);
+      return {
+        value,
+        sortValue: numericMatch ? Number(numericMatch[0]) : null
+      };
     }
 
     function parseSizeCode(productCode) {
@@ -991,7 +1017,7 @@
 
         const variantText = document.createElement("div");
         variantText.className = "variant-text";
-        variantText.textContent = row.product_code + (row.variant_detail ? " (" + row.variant_detail + ")" : "");
+        variantText.textContent = formatVariantText(row);
 
         const qty = document.createElement("input");
         qty.className = "qty-input";
@@ -1007,6 +1033,16 @@
       return card;
     }
 
+
+    function formatVariantText(row) {
+      if (!row.variant_detail) {
+        return row.product_code;
+      }
+
+      const detail = String(row.variant_detail);
+      const wrappedDetail = /^SIZE\s+/i.test(detail) ? " ( " + detail + " )" : " (" + detail + ")";
+      return row.product_code + wrappedDetail;
+    }
     function createCard(extraClass) {
       const card = document.createElement("article");
       card.className = extraClass ? "product-card " + extraClass : "product-card";
@@ -1135,6 +1171,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
