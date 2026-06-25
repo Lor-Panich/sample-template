@@ -224,8 +224,8 @@
     }
 
     .product-code {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       overflow-wrap: anywhere;
     }
 
@@ -270,6 +270,15 @@
     .variant-text {
       min-width: 0;
       overflow-wrap: anywhere;
+    }
+
+    .variant-code {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .variant-detail {
+      font-size: 12px;
     }
 
     .card-footer {
@@ -432,7 +441,7 @@
       }
 
       .product-code {
-        font-size: 10pt;
+        font-size: 11pt;
       }
 
       .product-name {
@@ -445,6 +454,14 @@
         gap: 1.5mm;
         font-size: 7.6pt;
         line-height: 1.2;
+      }
+
+      .variant-code {
+        font-size: 8.8pt;
+      }
+
+      .variant-detail {
+        font-size: 7.4pt;
       }
 
       .qty-input {
@@ -1065,7 +1082,19 @@
 
         const variantText = document.createElement("div");
         variantText.className = "variant-text";
-        variantText.textContent = formatVariantText(row);
+
+        const variantCode = document.createElement("span");
+        variantCode.className = "variant-code";
+        variantCode.textContent = row.product_code;
+        variantText.appendChild(variantCode);
+
+        const detailText = formatVariantDetailText(row.variant_detail);
+        if (detailText) {
+          const variantDetail = document.createElement("span");
+          variantDetail.className = "variant-detail";
+          variantDetail.textContent = detailText;
+          variantText.appendChild(variantDetail);
+        }
 
         const qty = document.createElement("input");
         qty.className = "qty-input";
@@ -1082,14 +1111,13 @@
     }
 
 
-    function formatVariantText(row) {
-      if (!row.variant_detail) {
-        return row.product_code;
+    function formatVariantDetailText(variantDetail) {
+      if (!variantDetail) {
+        return "";
       }
 
-      const detail = String(row.variant_detail);
-      const wrappedDetail = /^SIZE\s+/i.test(detail) ? " ( " + detail + " )" : " (" + detail + ")";
-      return row.product_code + wrappedDetail;
+      const detail = String(variantDetail);
+      return /^SIZE\s+/i.test(detail) ? " ( " + detail + " )" : " (" + detail + ")";
     }
     function createCard(extraClass) {
       const card = document.createElement("article");
@@ -1219,6 +1247,7 @@
   </script>
 </body>
 </html>
+
 
 
 
