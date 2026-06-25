@@ -504,6 +504,8 @@
         <button type="button" id="exportTemplateBtn">ส่งออกแม่แบบ TSV</button>
         <button type="button" id="loadSampleBtn">โหลดข้อมูลตัวอย่าง</button>
         <button type="button" class="primary" id="generateBtn">สร้าง / อัปเดตตัวอย่างก่อนพิมพ์</button>
+        <button type="button" id="addPlusBtn">เพิ่ม + จำนวนทั้งหมด</button>
+        <button type="button" id="removePlusBtn">เอา + ออกทั้งหมด</button>
         <button type="button" id="clearBtn">ล้างข้อมูล</button>
         <label class="column-control" for="columnSelect">
           <span>คอลัมน์</span>
@@ -645,6 +647,8 @@
     });
 
     document.getElementById("generateBtn").addEventListener("click", generatePreview);
+    document.getElementById("addPlusBtn").addEventListener("click", () => updateAllQuantitySigns("add"));
+    document.getElementById("removePlusBtn").addEventListener("click", () => updateAllQuantitySigns("remove"));
 
     columnSelect.addEventListener("change", () => {
       applyColumnSelection(lastBuiltCards);
@@ -661,6 +665,39 @@
       window.print();
     });
 
+
+    function updateAllQuantitySigns(mode) {
+      const inputs = Array.from(cardPreview.querySelectorAll(".qty-input"));
+      if (!inputs.length) {
+        showActionMessage("ยังไม่มีตัวอย่างการ์ด กรุณาสร้างตัวอย่างก่อน", "warning");
+        return;
+      }
+
+      inputs.forEach((input) => {
+        const value = String(input.value || "").trim();
+        if (!value) {
+          input.value = "";
+          return;
+        }
+
+        if (mode === "add") {
+          input.value = value.startsWith("+") ? value : "+" + value;
+          return;
+        }
+
+        input.value = value.startsWith("+") ? value.slice(1).trim() : value;
+      });
+
+      showActionMessage(mode === "add" ? "เพิ่ม + ให้จำนวนทั้งหมดแล้ว" : "เอา + ออกจากจำนวนทั้งหมดแล้ว", "success");
+    }
+
+    function showActionMessage(text, type) {
+      validationResult.innerHTML = "";
+      const el = document.createElement("div");
+      el.className = "message " + type;
+      el.textContent = text;
+      validationResult.appendChild(el);
+    }
     function setCardColumns(value) {
       const columns = ["2", "3", "4"].includes(String(value)) ? String(value) : "4";
       document.documentElement.style.setProperty("--card-columns", columns);
@@ -1182,6 +1219,7 @@
   </script>
 </body>
 </html>
+
 
 
 
