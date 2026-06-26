@@ -44,10 +44,10 @@
 รองเท้าที่ใส่ไซส์ไว้ต้นชื่อ เช่น `( SIZE 37 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black` ระบบจะตัด `( SIZE 37 )` ออกจากชื่อหลัก เก็บรายละเอียดเป็น `SIZE 37` และรวมหลายไซส์เป็นการ์ดกลุ่มเดียวอัตโนมัติ ตัวอย่างเช่น:
 
 ```tsv
-CA0637	( SIZE 37 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+10	500	
-CA0638	( SIZE 38 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	10	500	
-CA0639	( SIZE 39 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+8	500	
-CA0640	( SIZE 40 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	8	500	
+CA0637	( SIZE 37 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+10	500
+CA0638	( SIZE 38 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	10	500
+CA0639	( SIZE 39 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	+8	500
+CA0640	( SIZE 40 ) รองเท้า Fitflop lulu adjustable-buckle leather slides black	8	500
 ```
 
 ## ความหมายของ qty_display
@@ -97,3 +97,12 @@ CSS สำหรับการพิมพ์ตั้งไว้เป็น 
 
 
 
+
+สินค้าที่ใช้ไซส์ตัวเลขในวงเล็บต้นชื่อก็รองรับเช่นกัน เช่น `(Size 36/W5) รองเท้า Crocs รุ่น Brooklyn Sky สีกรม` หรือ `(Size 14/1-2ปี/อก 20/เอว 18) Adidas เสื้อฟุตบอลเด็กเล็ก Argentina 26 Away Kids Jersey` ระบบจะตัดวงเล็บออกจากชื่อหลัก เก็บรายละเอียดไซส์แบบเต็มไว้ในบรรทัดรหัสสินค้า และรวมหลายแถวเป็นการ์ดกลุ่มอัตโนมัติถ้าชื่อหลักเหมือนกัน ตัวอย่างเช่น:
+
+```tsv
+TR1736	(Size 36/W5) รองเท้า Crocs รุ่น Brooklyn Sky สีกรม	10	500
+TR1737	(Size 37/W6) รองเท้า Crocs รุ่น Brooklyn Sky สีกรม	10	500
+CR9614	(Size 14/1-2ปี/อก 20/เอว 18) Adidas เสื้อฟุตบอลเด็กเล็ก Argentina 26 Away Kids Jersey	10	300
+CR9616	(Size 16/2-3ปี/อก 22/เอว 19) Adidas เสื้อฟุตบอลเด็กเล็ก Argentina 26 Away Kids Jersey	10	300
+```

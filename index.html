@@ -860,9 +860,20 @@
       }
 
       return {
-        variantDetail: normalizeVariantDetail(match[1]),
+        variantDetail: normalizeLeadingVariantDetail(match[1]),
         productName: match[2].trim()
       };
+    }
+
+    function normalizeLeadingVariantDetail(value) {
+      const detail = String(value || "").trim().replace(/^\((.*)\)$/, "$1").trim();
+      const numericSizeMatch = detail.match(/^size\s+(\d+(?:\.\d+)?(?!XL\b).*)$/i);
+      if (numericSizeMatch) {
+        const prefix = detail.match(/^SIZE\b/) ? "SIZE" : "Size";
+        return prefix + " " + numericSizeMatch[1].trim();
+      }
+
+      return normalizeVariantDetail(detail);
     }
 
     function normalizeVariantDetail(value) {
@@ -1117,7 +1128,7 @@
       }
 
       const detail = String(variantDetail);
-      return /^SIZE\s+/i.test(detail) ? " ( " + detail + " )" : " (" + detail + ")";
+      return /^SIZE\s+/.test(detail) ? " ( " + detail + " )" : " (" + detail + ")";
     }
     function createCard(extraClass) {
       const card = document.createElement("article");
