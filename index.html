@@ -910,7 +910,7 @@
         row.__shoeSizeSort = shoeSize ? shoeSize.sortValue : null;
 
         if (comboSize) {
-          row.__autoGroupKey = "combo::" + normalizeGroupName(row.product_name);
+          row.__autoGroupKey = "combo::" + (parsedCode ? row.__baseCode + "::" : "") + normalizeGroupName(row.product_name);
         } else if (parsedCode) {
           row.__autoGroupKey = row.__baseCode + "::" + normalizeGroupName(row.product_name);
         } else if (shoeSize) {
