@@ -861,12 +861,22 @@
 
       return {
         variantDetail: normalizeLeadingVariantDetail(match[1]),
-        productName: match[2].trim()
+        productName: stripTrailingLengthDetail(match[2])
       };
+    }
+
+    function stripTrailingLengthDetail(productName) {
+      return String(productName || "").replace(/\s*\(\s*ยาว[^)]*\)\s*$/, "").trim();
     }
 
     function normalizeLeadingVariantDetail(value) {
       const detail = String(value || "").trim().replace(/^\((.*)\)$/, "$1").trim();
+      const comboSizeMatch = detail.match(/^size\s+([^,]*\/[^,]+,.+)$/i);
+      if (comboSizeMatch) {
+        const prefix = detail.match(/^SIZE\b/) ? "SIZE" : "Size";
+        return prefix + " " + comboSizeMatch[1].trim();
+      }
+
       const numericSizeMatch = detail.match(/^size\s+(\d+(?:\.\d+)?(?!XL\b).*)$/i);
       if (numericSizeMatch) {
         const prefix = detail.match(/^SIZE\b/) ? "SIZE" : "Size";
@@ -892,12 +902,16 @@
 
       rows.forEach((row) => {
         const parsedCode = parseSizeCode(row.product_code);
+        const comboSize = parseComboSizeDetail(row.variant_detail);
         const shoeSize = parseShoeSizeDetail(row.variant_detail);
         row.__baseCode = parsedCode ? parsedCode.baseCode : row.product_code;
         row.__size = parsedCode ? parsedCode.size : "";
+        row.__comboSizeSort = comboSize ? row.__index + 1 : null;
         row.__shoeSizeSort = shoeSize ? shoeSize.sortValue : null;
 
-        if (parsedCode) {
+        if (comboSize) {
+          row.__autoGroupKey = "combo::" + normalizeGroupName(row.product_name);
+        } else if (parsedCode) {
           row.__autoGroupKey = row.__baseCode + "::" + normalizeGroupName(row.product_name);
         } else if (shoeSize) {
           row.__autoGroupKey = "shoe::" + normalizeGroupName(row.product_name);
@@ -918,13 +932,17 @@
         if (groupRows && groupRows.length > 1) {
           row.card_type = "group";
           row.group_id = "auto-" + row.__autoGroupKey;
-          row.sort_order = String(row.__shoeSizeSort !== null ? row.__shoeSizeSort : getSizeSort(row.__size, row.__index));
+          row.sort_order = String(row.__comboSizeSort !== null ? row.__comboSizeSort : row.__shoeSizeSort !== null ? row.__shoeSizeSort : getSizeSort(row.__size, row.__index));
         } else {
           row.card_type = "single";
           row.group_id = "";
           row.sort_order = String(row.__index + 1);
         }
       });
+    }
+
+    function parseComboSizeDetail(variantDetail) {
+      return /^Size\s+[^,]*\/[^,]+,.+/.test(String(variantDetail || "").trim()) ? {} : null;
     }
 
     function parseShoeSizeDetail(variantDetail) {

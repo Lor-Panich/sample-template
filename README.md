@@ -106,3 +106,10 @@ TR1737	(Size 37/W6) รองเท้า Crocs รุ่น Brooklyn Sky สี
 CR9614	(Size 14/1-2ปี/อก 20/เอว 18) Adidas เสื้อฟุตบอลเด็กเล็ก Argentina 26 Away Kids Jersey	10	300
 CR9616	(Size 16/2-3ปี/อก 22/เอว 19) Adidas เสื้อฟุตบอลเด็กเล็ก Argentina 26 Away Kids Jersey	10	300
 ```
+ระบบรองรับไซส์แบบผสมในวงเล็บต้นชื่อ เช่น `(Size XXS/XS,อก 42)`, `(Size S/M,อก 46)`, และ `(Size L/XL,อก 52)` โดยจะเก็บรายละเอียดไซส์แบบเต็มไว้ในบรรทัดรหัสสินค้า ถ้าชื่อสินค้ามีวงเล็บท้ายชื่อที่ขึ้นต้นด้วยคำว่า `ยาว` เช่น `(ยาว 27)` ระบบจะตัดออกจากชื่อหลักเพื่อรวมกลุ่มอัตโนมัติ ตัวอย่างเช่น:
+
+```tsv
+RL130XS	(Size XXS/XS,อก 42) เสื้อ Gloria Jeans GJ Oversized สีดำ (ยาว 27)	10	200
+RL130M	(Size S/M,อก 46) เสื้อ Gloria Jeans GJ Oversized สีดำ (ยาว 28)	10	200
+RL130XL	(Size L/XL,อก 52) เสื้อ Gloria Jeans GJ Oversized สีดำ (ยาว 29)	10	200
+```
