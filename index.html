@@ -60,7 +60,34 @@
     .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
+      align-items: stretch;
+      justify-content: flex-end;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .toolbar-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .print-help {
+      flex-basis: 100%;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
     }
 
     button,
@@ -136,6 +163,12 @@
 
     .panel-body {
       padding: 14px;
+    }
+
+    .input-help {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     textarea {
@@ -381,9 +414,17 @@
         flex-direction: column;
       }
 
+      .toolbar-group {
+        flex: 1 1 100%;
+      }
+
       .toolbar button,
       .toolbar .column-control {
         flex: 1 1 auto;
+      }
+
+      .print-help {
+        text-align: left;
       }
 
       .column-control select {
@@ -515,46 +556,57 @@
     <header class="app-header">
       <div>
         <h1>ระบบสร้างใบคิดสินค้า</h1>
-        <div class="subtitle">ต้นแบบใช้งานบนเครื่อง: วางข้อมูล TSV สร้างการ์ดที่แก้จำนวนได้ แล้วพิมพ์หรือบันทึกเป็น PDF</div>
+        <div class="subtitle">ต้นแบบใช้งานบนเครื่อง: วางข้อมูลสินค้า สร้างการ์ดที่แก้จำนวนได้ แล้วพิมพ์หรือบันทึกเป็น PDF</div>
       </div>
-      <div class="toolbar">
-        <button type="button" id="exportTemplateBtn">ส่งออกแม่แบบ TSV</button>
-        <button type="button" id="loadSampleBtn">โหลดข้อมูลตัวอย่าง</button>
-        <button type="button" class="primary" id="generateBtn">สร้าง / อัปเดตตัวอย่างก่อนพิมพ์</button>
-        <button type="button" id="addPlusBtn">เพิ่ม + จำนวนทั้งหมด</button>
-        <button type="button" id="removePlusBtn">เอา + ออกทั้งหมด</button>
-        <button type="button" id="clearBtn">ล้างข้อมูล</button>
-        <label class="column-control" for="columnSelect">
-          <span>คอลัมน์</span>
-          <select id="columnSelect" aria-label="เลือกจำนวนคอลัมน์">
-            <option value="auto" selected>อัตโนมัติ</option>
-            <option value="4">4</option>
-            <option value="3">3</option>
-            <option value="2">2</option>
-          </select>
-        </label>
-        <button type="button" id="printBtn">พิมพ์ / บันทึกเป็น PDF</button>
+      <div class="toolbar" aria-label="ขั้นตอนการทำงาน">
+        <div class="toolbar-group" aria-label="เริ่มต้น">
+          <span class="toolbar-label">เริ่มต้น</span>
+          <button type="button" id="exportTemplateBtn">ดาวน์โหลดแม่แบบ</button>
+          <button type="button" id="loadSampleBtn">ลองใช้ข้อมูลตัวอย่าง</button>
+          <button type="button" id="clearBtn">ล้างข้อมูล</button>
+        </div>
+        <div class="toolbar-group" aria-label="จัดการตัวอย่าง">
+          <span class="toolbar-label">จัดการตัวอย่าง</span>
+          <button type="button" class="primary" id="generateBtn">สร้าง / อัปเดตตัวอย่างก่อนพิมพ์</button>
+          <button type="button" id="addPlusBtn">เพิ่ม + จำนวนทั้งหมด</button>
+          <button type="button" id="removePlusBtn">เอา + ออกทั้งหมด</button>
+          <label class="column-control" for="columnSelect">
+            <span>คอลัมน์</span>
+            <select id="columnSelect" aria-label="เลือกจำนวนคอลัมน์">
+              <option value="auto" selected>อัตโนมัติ</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+            </select>
+          </label>
+        </div>
+        <div class="toolbar-group" aria-label="พิมพ์">
+          <span class="toolbar-label">พิมพ์</span>
+          <button type="button" id="printBtn">พิมพ์ / บันทึกเป็น PDF</button>
+        </div>
+        <div class="print-help">แนะนำตอนพิมพ์: เลือกกระดาษ A4 / แนวตั้ง / Scale 100%</div>
       </div>
     </header>
 
     <section class="workspace">
       <section class="panel input-panel">
         <div class="panel-header">
-          <h2 class="panel-title">ข้อมูล TSV</h2>
+          <h2 class="panel-title">วางข้อมูลสินค้า</h2>
         </div>
         <div class="panel-body">
-          <textarea id="tsvInput" spellcheck="false" aria-label="ช่องวางข้อมูล TSV"></textarea>
+          <p class="input-help">วางข้อมูลจาก Excel หรือไฟล์ TSV ที่มีหัวตาราง: รหัสสินค้า / ชื่อสินค้า / จำนวน / ทุน / รูปภาพ</p>
+          <textarea id="tsvInput" spellcheck="false" aria-label="ช่องวางข้อมูลสินค้า"></textarea>
         </div>
       </section>
 
       <section class="panel">
         <div class="panel-header">
-          <h2 class="panel-title">ตัวอย่างการ์ด</h2>
+          <h2 class="panel-title">ตัวอย่างก่อนพิมพ์</h2>
         </div>
         <div class="panel-body">
           <div id="validationResult" class="validation"></div>
           <div id="cardPreview" class="card-grid">
-            <div class="empty-state">โหลดข้อมูลตัวอย่างหรือวางข้อมูล TSV แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>
+            <div class="empty-state">ลองใช้ข้อมูลตัวอย่างหรือวางข้อมูลสินค้า แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>
           </div>
         </div>
       </section>
@@ -675,7 +727,7 @@
     document.getElementById("clearBtn").addEventListener("click", () => {
       tsvInput.value = "";
       validationResult.innerHTML = "";
-      cardPreview.innerHTML = '<div class="empty-state">โหลดข้อมูลตัวอย่างหรือวางข้อมูล TSV แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>';
+      cardPreview.innerHTML = '<div class="empty-state">ลองใช้ข้อมูลตัวอย่างหรือวางข้อมูลสินค้า แล้วกดสร้าง / อัปเดตตัวอย่างก่อนพิมพ์</div>';
     });
 
     document.getElementById("printBtn").addEventListener("click", () => {
@@ -771,7 +823,7 @@
     function parseTsv(raw) {
       const normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trimEnd();
       if (!normalized.trim()) {
-        return { headers: [], rows: [], errors: ["กรุณาวางข้อมูล TSV ก่อนสร้าง / อัปเดตตัวอย่างก่อนพิมพ์"], warnings: [] };
+        return { headers: [], rows: [], errors: ["กรุณาวางข้อมูลสินค้าก่อนสร้าง / อัปเดตตัวอย่างก่อนพิมพ์"], warnings: [] };
       }
 
       const lines = normalized.split("\n");
